@@ -7,81 +7,91 @@
 
 import SwiftUI
 import AVFoundation
-import Photos
-struct RecordView: View {
-    @ObservedObject var recordView = RecordView()
+
+struct RecordView: UIViewControllerRepresentable {
     
-    var body: some View {
-        VStack {
-            Button(action: {
-                self.recordView.toggleRecording()
-            }) {
-                Text(recordView.isRecording ? "Stop" : "Start")
-            }
-            .padding()
-        }
-        .onAppear {
-            self.recordView.start()
-        }
+    func makeUIViewController(context: Context) -> UIViewController {
+        return RecordViewController()
     }
-    class RecordView: NSObject, ObservableObject, AVCaptureFileOutputRecordingDelegate {
-        @Published var isRecording = false
-        let session = AVCaptureSession()
-        let movieOutput = AVCaptureMovieFileOutput()
-        
-        func start() {
-            let deviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified)
-            
-            if let device = deviceDiscoverySession.devices.first {
-                do {
-                    let input = try AVCaptureDeviceInput(device: device)
-                    session.addInput(input)
-                } catch {
-                    print("Error adding input: \(error)")
-                }
-                
-                if session.canAddOutput(movieOutput) {
-                    session.addOutput(movieOutput)
-                }
-            }
-        }
-        
-        func toggleRecording() {
-            if !isRecording {
-                // start recording
-                let fileUrl = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("video.mov")
-                try? FileManager.default.removeItem(at: fileUrl)
-                movieOutput.startRecording(to: fileUrl, recordingDelegate: self)
-            } else {
-                // stop recording
-                movieOutput.stopRecording()
-            }
-            
-            isRecording.toggle()
-        }
-        
-        func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
-            if error == nil {
-                PHPhotoLibrary.requestAuthorization { status in
-                    if status == .authorized {
-                        PHPhotoLibrary.shared().performChanges({
-                            PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: outputFileURL)
-                        }) { saved, error in
-                            if saved {
-                                print("Video saved to the camera roll")
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
     }
 }
 
-struct RecordView_Previews: PreviewProvider {
-    static var previews: some View {
-        RecordView()
+class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
+    
+    var captureSession: AVCaptureSession!
+    var movieFileOutput: AVCaptureMovieFileOutput!
+    var tapCount = 0
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        captureSession = AVCaptureSession()
+        captureSession.sessionPreset = .high
+        
+        guard let backCamera = AVCaptureDevice.default(for: .video) else {
+            UIApplication.shared.alert(title:"App Message", body: "Unable to access backcam")
+            return
+        }
+        
+        do {
+            let input = try AVCaptureDeviceInput(device: backCamera)
+            captureSession.addInput(input)
+        } catch {
+            UIApplication.shared.alert(title:"App Message", body: "Unable to access back cam")
+            return
+        }
+        
+        movieFileOutput = AVCaptureMovieFileOutput()
+        captureSession.addOutput(movieFileOutput)
+        
+        
+        let recordButton = UIButton(frame: CGRect(x: 0, y: 0, width: 70, height: 70))
+        recordButton.center = view.center
+        recordButton.setTitle("Record", for: .normal)
+        recordButton.setTitleColor(.red, for: .normal)
+        recordButton.addTarget(self, action: #selector(recordButtonTapped), for: .touchUpInside)
+        view.addSubview(recordButton)
+        
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
+        view.addGestureRecognizer(tapGestureRecognizer)
+        
+        captureSession.startRunning()
+    }
+    
+    @objc func recordButtonTapped() {
+        if movieFileOutput.isRecording {
+            movieFileOutput.stopRecording()
+        } else {
+            movieFileOutput.startRecording(to: URL(fileURLWithPath: NSTemporaryDirectory() + "movie.mov"), recordingDelegate: self)
+        }
+    }
+    
+    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+        if error != nil {
+            UIApplication.shared.alert(title:"App Message", body: "Error recording video: \(error!.localizedDescription)")
+        } else {
+            UISaveVideoAtPathToSavedPhotosAlbum(outputFileURL.path, self, #selector(videoSaved(_:didFinishSavingWithError:contextInfo:)), nil)
+        }
+    }
+    
+    @objc func videoSaved(_ videoPath: String, didFinishSavingWithError error: Error?, contextInfo info: AnyObject) {
+        if error != nil {
+            UIApplication.shared.alert(title:"App Message", body: "Error saving video: \(error!.localizedDescription)")
+        } else {
+            UIApplication.shared.alert(title:"App Message", body: "Video saved successfully")
+            exit(0)
+        }
+    }
+    
+    @objc func viewTapped() {
+        tapCount += 1
+        if tapCount == 2 {
+            view.backgroundColor = .white
+            movieFileOutput.stopRecording()
+        } else {
+            view.backgroundColor = .black
+        }
     }
 }
-
-

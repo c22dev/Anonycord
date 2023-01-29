@@ -13,6 +13,10 @@
 		F15430A1294E835F00A1B6D7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F15430A0294E835F00A1B6D7 /* Preview Assets.xcassets */; };
 		F15430A8294E838F00A1B6D7 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15430A7294E838F00A1B6D7 /* AboutView.swift */; };
 		F15430AC294E83AC00A1B6D7 /* RecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15430AB294E83AC00A1B6D7 /* RecordView.swift */; };
+		F186BFF6294F22DA00FC6213 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F186BFF5294F22D900FC6213 /* AVFoundation.framework */; };
+		F186BFF8294F22E600FC6213 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F186BFF7294F22E500FC6213 /* UIKit.framework */; };
+		F186BFFA294F28A400FC6213 /* funcs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F186BFF9294F28A400FC6213 /* funcs.swift */; };
+		F186BFFC294F290100FC6213 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F186BFFB294F290000FC6213 /* ImagePicker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +27,10 @@
 		F15430A0294E835F00A1B6D7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		F15430A7294E838F00A1B6D7 /* AboutView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		F15430AB294E83AC00A1B6D7 /* RecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordView.swift; sourceTree = "<group>"; };
+		F186BFF5294F22D900FC6213 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		F186BFF7294F22E500FC6213 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		F186BFF9294F28A400FC6213 /* funcs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = funcs.swift; path = ../../../../../Downloads/funcs.swift; sourceTree = "<group>"; };
+		F186BFFB294F290000FC6213 /* ImagePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ImagePicker.swift; path = ../../../../../Downloads/ImagePicker.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -30,6 +38,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F186BFF6294F22DA00FC6213 /* AVFoundation.framework in Frameworks */,
+				F186BFF8294F22E600FC6213 /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -41,6 +51,7 @@
 			children = (
 				F1543098294E835C00A1B6D7 /* Anonycord */,
 				F1543097294E835C00A1B6D7 /* Products */,
+				F186BFF4294F22D800FC6213 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -56,6 +67,8 @@
 			isa = PBXGroup;
 			children = (
 				F15430AB294E83AC00A1B6D7 /* RecordView.swift */,
+				F186BFF9294F28A400FC6213 /* funcs.swift */,
+				F186BFFB294F290000FC6213 /* ImagePicker.swift */,
 				F1543099294E835C00A1B6D7 /* AnonycordApp.swift */,
 				F154309B294E835C00A1B6D7 /* ContentView.swift */,
 				F15430A7294E838F00A1B6D7 /* AboutView.swift */,
@@ -71,6 +84,15 @@
 				F15430A0294E835F00A1B6D7 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		F186BFF4294F22D800FC6213 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F186BFF7294F22E500FC6213 /* UIKit.framework */,
+				F186BFF5294F22D900FC6213 /* AVFoundation.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -146,6 +168,8 @@
 				F154309C294E835C00A1B6D7 /* ContentView.swift in Sources */,
 				F15430AC294E83AC00A1B6D7 /* RecordView.swift in Sources */,
 				F15430A8294E838F00A1B6D7 /* AboutView.swift in Sources */,
+				F186BFFC294F290100FC6213 /* ImagePicker.swift in Sources */,
+				F186BFFA294F28A400FC6213 /* funcs.swift in Sources */,
 				F154309A294E835C00A1B6D7 /* AnonycordApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
