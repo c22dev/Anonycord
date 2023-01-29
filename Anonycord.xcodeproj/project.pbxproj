@@ -302,6 +302,8 @@
 				DEVELOPMENT_TEAM = 7G89J82G2A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Anonycord;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
 				INFOPLIST_KEY_NSCameraUsageDescription = cam;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = audio;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = photo;
@@ -335,6 +337,8 @@
 				DEVELOPMENT_TEAM = 7G89J82G2A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Anonycord;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
 				INFOPLIST_KEY_NSCameraUsageDescription = cam;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = audio;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = photo;

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Photos
 import AVFoundation
 
 struct RecordView: UIViewControllerRepresentable {
@@ -19,7 +20,6 @@ struct RecordView: UIViewControllerRepresentable {
 }
 
 class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
-    
     var captureSession: AVCaptureSession!
     var movieFileOutput: AVCaptureMovieFileOutput!
     var tapCount = 0
@@ -49,7 +49,7 @@ class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         
         let recordButton = UIButton(frame: CGRect(x: 0, y: 0, width: 70, height: 70))
         recordButton.center = view.center
-        recordButton.setTitle("Record", for: .normal)
+        recordButton.setTitle("Start", for: .normal)
         recordButton.setTitleColor(.red, for: .normal)
         recordButton.addTarget(self, action: #selector(recordButtonTapped), for: .touchUpInside)
         view.addSubview(recordButton)
@@ -59,7 +59,7 @@ class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         
         captureSession.startRunning()
     }
-    
+
     @objc func recordButtonTapped() {
         if movieFileOutput.isRecording {
             movieFileOutput.stopRecording()
@@ -95,3 +95,4 @@ class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         }
     }
 }
+
