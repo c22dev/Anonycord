@@ -10,16 +10,15 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        TabView {
             RecordView()
-                .tabItem {
-                    Label("Record", systemImage: "record.circle")
+            .statusBar(hidden: true)
+            .onAppear{
+                let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunch")
+                if !isFirstLaunch {
+                    UserDefaults.standard.set(true, forKey: "firstLaunch")
+                    UIApplication.shared.alert(title: "Welcome to Anonycord !",body: "This app was made by c22dev. Credits to alecs and General Shiro for testing")
                 }
-            AboutView()
-                .tabItem {
-                    Label("About", systemImage: "info.circle")
-                }
-        }
+            }
     }
 }
 

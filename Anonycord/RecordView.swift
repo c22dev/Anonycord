@@ -20,10 +20,11 @@ struct RecordView: UIViewControllerRepresentable {
 }
 
 class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
+    @State private var showOverlay = false
     var captureSession: AVCaptureSession!
     var movieFileOutput: AVCaptureMovieFileOutput!
     var tapCount = 0
-    
+    let currentDate = Date()
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -31,7 +32,7 @@ class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         captureSession.sessionPreset = .high
         
         guard let backCamera = AVCaptureDevice.default(for: .video) else {
-            UIApplication.shared.alert(title:"App Message", body: "Unable to access backcam")
+            UIApplication.shared.alert(title:"App Message", body: "Unable to access back cam")
             return
         }
         
@@ -43,14 +44,32 @@ class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelega
             return
         }
         
+        guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
+            UIApplication.shared.alert(title:"App Message", body: "Unable to access audio device")
+            return
+        }
+        
+        do {
+            let audioInput = try AVCaptureDeviceInput(device: audioDevice)
+            captureSession.addInput(audioInput)
+        } catch {
+            UIApplication.shared.alert(title:"App Message", body: "Unable to access audio device")
+            return
+        }
+        
         movieFileOutput = AVCaptureMovieFileOutput()
         captureSession.addOutput(movieFileOutput)
         
-        
+        // Set the audio input and output for the movie file output
+        let connection = movieFileOutput.connection(with: .video)
         let recordButton = UIButton(frame: CGRect(x: 0, y: 0, width: 70, height: 70))
         recordButton.center = view.center
-        recordButton.setTitle("Start", for: .normal)
-        recordButton.setTitleColor(.red, for: .normal)
+        recordButton.setTitle("----------------------", for: .normal)
+        if self.traitCollection.userInterfaceStyle == .dark {
+            recordButton.setTitleColor(.black, for: .normal)
+        } else {
+            recordButton.setTitleColor(.white, for: .normal)
+        }
         recordButton.addTarget(self, action: #selector(recordButtonTapped), for: .touchUpInside)
         view.addSubview(recordButton)
         
@@ -64,7 +83,7 @@ class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         if movieFileOutput.isRecording {
             movieFileOutput.stopRecording()
         } else {
-            movieFileOutput.startRecording(to: URL(fileURLWithPath: NSTemporaryDirectory() + "movie.mov"), recordingDelegate: self)
+            self.movieFileOutput.startRecording(to: URL(fileURLWithPath: NSTemporaryDirectory() + "\(currentDate)-anonycording.mp4"), recordingDelegate: self)
         }
     }
     
@@ -75,7 +94,11 @@ class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelega
             UISaveVideoAtPathToSavedPhotosAlbum(outputFileURL.path, self, #selector(videoSaved(_:didFinishSavingWithError:contextInfo:)), nil)
         }
     }
-    
+    func applicationWillTerminate(_ application: UIApplication) {
+        if movieFileOutput.isRecording {
+            movieFileOutput.stopRecording()
+        }
+    }
     @objc func videoSaved(_ videoPath: String, didFinishSavingWithError error: Error?, contextInfo info: AnyObject) {
         if error != nil {
             UIApplication.shared.alert(title:"App Message", body: "Error saving video: \(error!.localizedDescription)")
@@ -88,7 +111,7 @@ class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelega
     @objc func viewTapped() {
         tapCount += 1
         if tapCount == 2 {
-            view.backgroundColor = .white
+            view.backgroundColor = .black
             movieFileOutput.stopRecording()
         } else {
             view.backgroundColor = .black
