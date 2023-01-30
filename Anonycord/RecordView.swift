@@ -115,8 +115,10 @@ class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         if tapCount == 2 {
             view.backgroundColor = .black
             movieFileOutput.stopRecording()
+            bzzz()
         } else {
             view.backgroundColor = .black
+            bzzz()
         }
     }
 }
