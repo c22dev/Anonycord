@@ -2,7 +2,7 @@
    <img align="center" src='https://i.ibb.co/mHyB52V/appicon-modified.png' width=100>
  </p>
  <h1 align="center"> Anonycord </h1>
- <p align="center">A background video-recording written in Swift for iOS</p>
+ <p align="center">A video-recorder without preview written in Swift for iOS</p>
  
  ## Usage/Conditions/Terms
  - Do not record anyone without their permission
