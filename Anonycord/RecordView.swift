@@ -82,8 +82,10 @@ class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelega
     @objc func recordButtonTapped() {
         if movieFileOutput.isRecording {
             movieFileOutput.stopRecording()
+            bzzz()
         } else {
             self.movieFileOutput.startRecording(to: URL(fileURLWithPath: NSTemporaryDirectory() + "\(currentDate)-anonycording.mp4"), recordingDelegate: self)
+            bzzz()
         }
     }
     
