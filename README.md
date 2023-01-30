@@ -14,8 +14,9 @@
 By using my app, you agree to these previous terms
 
 ## Features
+- Press the middle of the screen to enable
 - Record a video without preview on screen (the green dot is however present)
-- Save to photo galery when stop button is pressed
+- Save to photo galery when the middle of the screen is pressed again
 
 ## Requirements
 - The ability to sideload this app, you can use TrollStore or any other Sideloader
