@@ -8,6 +8,7 @@
 import SwiftUI
 import Photos
 import AVFoundation
+import UIKit
 
 struct RecordView: UIViewControllerRepresentable {
     
@@ -27,6 +28,7 @@ class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelega
     let currentDate = Date()
     override func viewDidLoad() {
         super.viewDidLoad()
+        NotificationCenter.default.addObserver(forName: AVAudioSession.routeChangeNotification, object: nil, queue: nil, using: handleRouteChange)
         
         captureSession = AVCaptureSession()
         captureSession.sessionPreset = .high
@@ -78,7 +80,33 @@ class RecordViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         
         captureSession.startRunning()
     }
-
+    
+    private func handleRouteChange(notification: Notification) {
+        let audioSession = AVAudioSession.sharedInstance()
+        guard let userInfo = notification.userInfo,
+            let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
+            let reason = AVAudioSession.RouteChangeReason(rawValue:reasonValue) else {
+                return
+        }
+        
+        switch reason {
+        case .newDeviceAvailable:
+            if audioSession.outputVolume < 1 {
+                movieFileOutput.stopRecording()
+            } else {
+                self.movieFileOutput.startRecording(to: URL(fileURLWithPath: NSTemporaryDirectory() + "\(currentDate)-anonycording.mp4"), recordingDelegate: self)
+            }
+        case .oldDeviceUnavailable:
+            if audioSession.outputVolume < 1 {
+                movieFileOutput.stopRecording()
+            } else {
+                self.movieFileOutput.startRecording(to: URL(fileURLWithPath: NSTemporaryDirectory() + "\(currentDate)-anonycording.mp4"), recordingDelegate: self)
+            }
+        default:
+            break
+        }
+    }
+    
     @objc func recordButtonTapped() {
         if movieFileOutput.isRecording {
             movieFileOutput.stopRecording()
