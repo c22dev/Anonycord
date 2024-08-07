@@ -16,6 +16,7 @@ struct ContentView: View {
     @State private var showingFilePicker = false
     @State private var boxSize: CGFloat = UIScreen.main.bounds.width - 60
     @StateObject private var mediaRecorder = MediaRecorder()
+    @State private var inBeta = true
     
     var body: some View {
         VStack {
@@ -27,9 +28,16 @@ struct ContentView: View {
                 Text("Anonycord")
                     .font(.system(size: UIFont.preferredFont(forTextStyle: .title2).pointSize, weight: .bold))
                     .transition(.scale)
-                Text("v\(Bundle.main.releaseVersionNumber ?? "0.0") - by c22dev")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
+                if inBeta {
+                    Text("v\(Bundle.main.releaseVersionNumber ?? "0.0") Beta \(Bundle.main.buildVersionNumber ?? "0") - by c22dev")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                }
+                else {
+                    Text("v\(Bundle.main.releaseVersionNumber ?? "0.0") - by c22dev")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                }
             }
             Spacer()
             HStack {
