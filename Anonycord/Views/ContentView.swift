@@ -52,12 +52,14 @@ struct ContentView: View {
             .background(VisualEffectBlur(blurStyle: .systemThinMaterialDark))
             .cornerRadius(30)
             .padding()
-            .onChange(of: isRecordingVideo) {
+            // This method (and the one bellow) are deprecated in iOS 17. I'll still use this for lower versions.
+            // If you want to add higher version support only remove the _ in.
+            .onChange(of: isRecordingVideo) { _ in
                 withAnimation {
                     boxSize = isRecordingVideo ? 100 : (UIScreen.main.bounds.width - 60)
                 }
             }
-            .onChange(of: isRecordingAudio) {
+            .onChange(of: isRecordingAudio) { _ in
                 withAnimation {
                     boxSize = isRecordingAudio ? 100 : (UIScreen.main.bounds.width - 60)
                 }
