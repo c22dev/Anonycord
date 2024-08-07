@@ -10,12 +10,15 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var appSettings: AppSettings
     @FocusState private var isTextFieldFocused: Bool
+    @Environment(\.openURL) var openURL
+    
     @State private var micSplRateStr: String
     @State private var channelDefStr: String
     @State private var cameraType: String
     @State private var videoQuality: String
     @State private var exitAtEnd: Bool
     @State private var infoAtBttm: Bool
+    @State private var hideAll: Bool
     
     @ObservedObject var mediaRecorder: MediaRecorder
 
@@ -30,6 +33,7 @@ struct SettingsView: View {
         _videoQuality = State(initialValue: AppSettings().videoQuality)
         _exitAtEnd = State(initialValue: AppSettings().crashAtEnd)
         _infoAtBttm = State(initialValue: AppSettings().showSettingsAtBttm)
+        _hideAll = State(initialValue: AppSettings().hideAll)
     }
 
     var body: some View {
@@ -102,6 +106,15 @@ struct SettingsView: View {
                     .onChange(of: exitAtEnd) { newValue in
                         appSettings.crashAtEnd = exitAtEnd
                     }
+                    Toggle(isOn: $hideAll) {
+                        Text("Hide All Controls While Recording")
+                    }
+                    .onChange(of: hideAll) { newValue in
+                        if newValue {
+                            UIApplication.shared.confirmAlert(title:"Instructions", body: "To stop and save videos with this option enabled, you just have to click anywhere on the screen.", onOK: {}, noCancel: true)
+                        }
+                        appSettings.hideAll = hideAll
+                    }
                 }
                 Section(header: Label("UI", systemImage: "pencil"), footer: Text("Settings for user interface.")) {
                     Toggle(isOn: $infoAtBttm) {
@@ -109,6 +122,17 @@ struct SettingsView: View {
                     }
                     .onChange(of: infoAtBttm) { newValue in
                         appSettings.showSettingsAtBttm = infoAtBttm
+                    }
+                }
+                Section(header: Label("Links", systemImage: "link"), footer: Text("A few links to my socials to contact me if you need help.")) {
+                    Button("Github") {
+                        openURL(URL(string: "https://github.com/c22dev/Anonycord")!)
+                    }
+                    Button("Discord") {
+                        openURL(URL(string: "https://discord.com/users/614377175608459264")!)
+                    }
+                    Button("Website") {
+                        openURL(URL(string: "https://cclerc.ch")!)
                     }
                 }
             }

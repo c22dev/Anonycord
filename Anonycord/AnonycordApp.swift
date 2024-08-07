@@ -25,4 +25,5 @@ class AppSettings: ObservableObject {
     @AppStorage("videoQuality") var videoQuality: String = "1080p"
     @AppStorage("crashAtEnd") var crashAtEnd: Bool = false
     @AppStorage("showSettingsAtBttm") var showSettingsAtBttm: Bool = true
+    @AppStorage("hideAll") var hideAll: Bool = false
 }

@@ -19,77 +19,95 @@ struct ContentView: View {
     @State private var inBeta = true
     
     var body: some View {
-        VStack {
-            Spacer() // spacer sandwich 🥪
-            if !isRecordingAudio && !isRecordingVideo {
-                Image(uiImage: Bundle.main.icon!)
-                    .cornerRadius(10)
-                    .transition(.scale)
-                Text("Anonycord")
-                    .font(.system(size: UIFont.preferredFont(forTextStyle: .title2).pointSize, weight: .bold))
-                    .transition(.scale)
-                if inBeta {
-                    Text("v\(Bundle.main.releaseVersionNumber ?? "0.0") Beta \(Bundle.main.buildVersionNumber ?? "0") - by c22dev")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                }
-                else {
-                    Text("v\(Bundle.main.releaseVersionNumber ?? "0.0") - by c22dev")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                }
-            }
-            Spacer()
-            HStack {
-                if !isRecordingAudio {
-                    RecordButton(isRecording: $isRecordingVideo, action: toggleVideoRecording, icon: "video.circle.fill")
-                        .transition(.scale)
-                    if !isRecordingVideo {
-                        Spacer()
-                    }
-                }
-                
-                if !isRecordingVideo {
-                    RecordButton(isRecording: $isRecordingAudio, action: toggleAudioRecording, icon: "mic.circle.fill")
-                        .transition(.scale)
-                    if !isRecordingAudio {
-                        Spacer()
-                    }
-                }
-                
-                if !isRecordingVideo && !isRecordingAudio {
-                    ControlButton(action: takePhoto, icon: "camera.circle.fill")
-                        .transition(.scale)
-                    Spacer()
-                    ControlButton(action: { showingSettings.toggle() }, icon: "gear.circle.fill")
-                        .sheet(isPresented: $showingSettings) {
-                            SettingsView(mediaRecorder: mediaRecorder)
+        ZStack {
+            if isRecordingAudio || isRecordingVideo {
+                Rectangle()
+                    .fill(Color.black)
+                    .edgesIgnoringSafeArea(.all)
+                    .onTapGesture {
+                        if isRecordingVideo {
+                            toggleVideoRecording()
                         }
+                        if isRecordingAudio {
+                            toggleAudioRecording()
+                        }
+                    }
+            } else {
+                Color.black.edgesIgnoringSafeArea(.all)
+            }
+
+            VStack {
+                Spacer() // spacer sandwich 🥪
+                if !isRecordingAudio && !isRecordingVideo {
+                    Image(uiImage: Bundle.main.icon!)
+                        .cornerRadius(10)
                         .transition(.scale)
+                    Text("Anonycord")
+                        .font(.system(size: UIFont.preferredFont(forTextStyle: .title2).pointSize, weight: .bold))
+                        .transition(.scale)
+                    if inBeta {
+                        Text("v\(Bundle.main.releaseVersionNumber ?? "0.0") Beta \(Bundle.main.buildVersionNumber ?? "0") - by c22dev")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("v\(Bundle.main.releaseVersionNumber ?? "0.0") - by c22dev")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
                 }
-            }
-            .padding()
-            .frame(width: boxSize)
-            .background(VisualEffectBlur(blurStyle: .systemThinMaterialDark))
-            .cornerRadius(30)
-            .padding()
-            .onChange(of: isRecordingVideo) { _ in
-                withAnimation {
-                    boxSize = isRecordingVideo ? 100 : (UIScreen.main.bounds.width - 60)
+                Spacer()
+                if !appSettings.hideAll || (!isRecordingAudio && !isRecordingVideo) {
+                    HStack {
+                        if !isRecordingAudio {
+                            RecordButton(isRecording: $isRecordingVideo, action: toggleVideoRecording, icon: "video.circle.fill")
+                                .transition(.scale)
+                            if !isRecordingVideo {
+                                Spacer()
+                            }
+                        }
+                        
+                        if !isRecordingVideo {
+                            RecordButton(isRecording: $isRecordingAudio, action: toggleAudioRecording, icon: "mic.circle.fill")
+                                .transition(.scale)
+                            if !isRecordingAudio {
+                                Spacer()
+                            }
+                        }
+                        
+                        if !isRecordingVideo && !isRecordingAudio {
+                            ControlButton(action: takePhoto, icon: "camera.circle.fill")
+                                .transition(.scale)
+                            Spacer()
+                            ControlButton(action: { showingSettings.toggle() }, icon: "gear.circle.fill")
+                                .sheet(isPresented: $showingSettings) {
+                                    SettingsView(mediaRecorder: mediaRecorder)
+                                }
+                                .transition(.scale)
+                        }
+                    }
+                    .padding()
+                    .frame(width: boxSize)
+                    .background(VisualEffectBlur(blurStyle: .systemThinMaterialDark))
+                    .cornerRadius(30)
+                    .padding()
+                    .onChange(of: isRecordingVideo) { _ in
+                        withAnimation {
+                            boxSize = isRecordingVideo ? 100 : (UIScreen.main.bounds.width - 60)
+                        }
+                    }
+                    .onChange(of: isRecordingAudio) { _ in
+                        withAnimation {
+                            boxSize = isRecordingAudio ? 100 : (UIScreen.main.bounds.width - 60)
+                        }
+                    }
                 }
-            }
-            .onChange(of: isRecordingAudio) { _ in
-                withAnimation {
-                    boxSize = isRecordingAudio ? 100 : (UIScreen.main.bounds.width - 60)
+                if !isRecordingAudio && !isRecordingVideo && appSettings.showSettingsAtBttm {
+                    Text("Current Parameters : \(appSettings.videoQuality), \(appSettings.cameraType)")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
                 }
-            }
-            if !isRecordingAudio && !isRecordingVideo && appSettings.showSettingsAtBttm {
-                Text("Current Parameters : \(appSettings.videoQuality), \(appSettings.cameraType)")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
             }
         }
-        .background(Color.black)
         .onAppear(perform: setup)
     }
     
@@ -126,9 +144,9 @@ struct ContentView: View {
     }
 }
 
-
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+            .environmentObject(AppSettings())
     }
 }
