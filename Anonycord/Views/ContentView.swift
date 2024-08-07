@@ -61,6 +61,14 @@ struct ContentView: View {
                         if !isRecordingAudio {
                             RecordButton(isRecording: $isRecordingVideo, action: toggleVideoRecording, icon: "video.circle.fill")
                                 .transition(.scale)
+//                                .contextMenu {
+//                                Button(action: {
+//                                    print("shhh...")
+//                                }, label:
+//                                        {
+//                                    Text("Standard")
+//                                })
+//                            }
                             if !isRecordingVideo {
                                 Spacer()
                             }

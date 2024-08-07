@@ -96,13 +96,14 @@ extension UIApplication {
     }
     
     func present(alert: UIAlertController) {
-        if var topController = self.windows[0].rootViewController {
-            while let presentedViewController = topController.presentedViewController {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            var topController = window.rootViewController
+            while let presentedViewController = topController?.presentedViewController {
                 topController = presentedViewController
             }
-            
-            topController.present(alert, animated: true)
-            // topController should now be your topmost view controller
+
+            topController?.present(alert, animated: true)
         }
     }
 }
