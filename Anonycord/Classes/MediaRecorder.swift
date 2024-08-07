@@ -81,7 +81,7 @@ class MediaRecorder: ObservableObject {
         let audioFilename = getDocumentsDirectory().appendingPathComponent("recording.m4a")
         let settings: [String: Any] = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVSampleRateKey: 44100,
+            AVSampleRateKey: AppSettings().micSampleRate,
             AVNumberOfChannelsKey: 1,
             AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
         ]

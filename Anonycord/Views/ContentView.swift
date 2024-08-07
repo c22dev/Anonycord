@@ -18,6 +18,18 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
+            Spacer() // spacer sandwich 🥪
+            if !isRecordingAudio && !isRecordingVideo {
+                Image(uiImage: Bundle.main.icon!)
+                    .cornerRadius(10)
+                    .transition(.scale)
+                Text("Anonycord")
+                    .font(.system(size: UIFont.preferredFont(forTextStyle: .title2).pointSize, weight: .bold)) // goofy ahh <16.0 swiftUI
+                    .transition(.scale)
+                Text("by c22dev")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+            }
             Spacer()
             HStack {
                 if !isRecordingAudio {
