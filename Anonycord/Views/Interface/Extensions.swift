@@ -23,3 +23,10 @@ extension Bundle {
         return infoDictionary?["CFBundleShortVersionString"] as? String
     }
 }
+
+func exitWithStyle() {
+    UIControl().sendAction(#selector(URLSessionTask.suspend), to: UIApplication.shared, for: nil)
+    Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { (timer) in
+        exit(0)
+    }
+}

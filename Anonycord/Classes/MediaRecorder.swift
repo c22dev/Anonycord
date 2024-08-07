@@ -31,20 +31,75 @@ class MediaRecorder: ObservableObject {
     
     func setupCaptureSession() {
         captureSession = AVCaptureSession()
-        captureSession.sessionPreset = .high
+        
+        // Configure session preset based on videoQuality
+        switch AppSettings().videoQuality {
+        case "4K":
+            captureSession.sessionPreset = .hd4K3840x2160
+        case "1080p":
+            captureSession.sessionPreset = .hd1920x1080
+        default:
+            captureSession.sessionPreset = .high
+        }
         
         setupVideoInput()
         setupAudioInput()
         setupOutputs()
         
-        captureSession.startRunning()
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.captureSession.startRunning()
+        }
     }
     
     private func setupVideoInput() {
-        guard let videoCaptureDevice = AVCaptureDevice.default(for: .video),
-              let videoInput = try? AVCaptureDeviceInput(device: videoCaptureDevice),
-              captureSession.canAddInput(videoInput) else { return }
-        captureSession.addInput(videoInput)
+        guard let captureSession = self.captureSession else {
+            print("Capture session is not initialized.")
+            return
+        }
+        
+        // Remove existing video inputs
+        for input in captureSession.inputs {
+            if let videoInput = input as? AVCaptureDeviceInput {
+                captureSession.removeInput(videoInput)
+            }
+        }
+        
+        let cameraPosition: AVCaptureDevice.Position
+        var cameraType: AVCaptureDevice.DeviceType
+        
+        switch AppSettings().cameraType {
+        case "Selfie":
+            cameraPosition = .front
+            cameraType = .builtInWideAngleCamera
+        case "UltraWide":
+            cameraPosition = .back
+            cameraType = .builtInUltraWideCamera
+        default:
+            cameraPosition = .back
+            cameraType = .builtInWideAngleCamera
+        }
+        
+        let devices = AVCaptureDevice.DiscoverySession(
+            deviceTypes: [.builtInWideAngleCamera, .builtInUltraWideCamera],
+            mediaType: .video,
+            position: cameraPosition
+        ).devices
+        
+        guard let cameraDevice = devices.first(where: { $0.deviceType == cameraType }) else {
+            print("No available camera found.")
+            return
+        }
+        
+        do {
+            let videoInput = try AVCaptureDeviceInput(device: cameraDevice)
+            if captureSession.canAddInput(videoInput) {
+                captureSession.addInput(videoInput)
+            } else {
+                print("Unable to add video input (?)")
+            }
+        } catch {
+            print("error creating video input \(error)")
+        }
     }
     
     private func setupAudioInput() {
@@ -119,6 +174,9 @@ class MediaRecorder: ObservableObject {
                 print("Error saving video: \(error.localizedDescription)")
             } else {
                 print("Video saved to library")
+                if AppSettings().crashAtEnd {
+                    exitWithStyle()
+                }
             }
         })
     }
@@ -143,5 +201,11 @@ class MediaRecorder: ObservableObject {
            let rootController = scene.windows.first?.rootViewController {
             rootController.present(documentPicker, animated: true, completion: nil)
         }
+    }
+    
+    func reconfigureCaptureSession() {
+        guard let captureSession = self.captureSession else { return }
+        captureSession.stopRunning()
+        setupCaptureSession()
     }
 }

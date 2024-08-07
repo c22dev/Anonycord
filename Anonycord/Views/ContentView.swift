@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var appSettings: AppSettings
     @State private var showingSettings = false
     @State private var isRecordingVideo = false
     @State private var isRecordingAudio = false
@@ -24,7 +25,7 @@ struct ContentView: View {
                     .cornerRadius(10)
                     .transition(.scale)
                 Text("Anonycord")
-                    .font(.system(size: UIFont.preferredFont(forTextStyle: .title2).pointSize, weight: .bold)) // goofy ahh <16.0 swiftUI
+                    .font(.system(size: UIFont.preferredFont(forTextStyle: .title2).pointSize, weight: .bold))
                     .transition(.scale)
                 Text("v\(Bundle.main.releaseVersionNumber ?? "0.0") - by c22dev")
                     .font(.footnote)
@@ -54,7 +55,7 @@ struct ContentView: View {
                     Spacer()
                     ControlButton(action: { showingSettings.toggle() }, icon: "gear.circle.fill")
                         .sheet(isPresented: $showingSettings) {
-                            SettingsView()
+                            SettingsView(mediaRecorder: mediaRecorder)
                         }
                         .transition(.scale)
                 }
@@ -64,8 +65,6 @@ struct ContentView: View {
             .background(VisualEffectBlur(blurStyle: .systemThinMaterialDark))
             .cornerRadius(30)
             .padding()
-            // This method (and the one bellow) are deprecated in iOS 17. I'll still use this for lower versions.
-            // If you want to add higher version support only remove the _ in.
             .onChange(of: isRecordingVideo) { _ in
                 withAnimation {
                     boxSize = isRecordingVideo ? 100 : (UIScreen.main.bounds.width - 60)
@@ -75,6 +74,11 @@ struct ContentView: View {
                 withAnimation {
                     boxSize = isRecordingAudio ? 100 : (UIScreen.main.bounds.width - 60)
                 }
+            }
+            if !isRecordingAudio && !isRecordingVideo && appSettings.showSettingsAtBttm {
+                Text("Current Parameters : \(appSettings.videoQuality), \(appSettings.cameraType)")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
             }
         }
         .background(Color.black)

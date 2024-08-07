@@ -34,6 +34,9 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
                     print("Error saving photo to library: \(error.localizedDescription)")
                 } else {
                     print("Photo saved to library")
+                    if AppSettings().crashAtEnd {
+                        exitWithStyle()
+                    }
                 }
             })
         }
