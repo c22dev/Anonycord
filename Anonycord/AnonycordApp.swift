@@ -18,4 +18,5 @@ struct AnonycordApp: App {
 
 class AppSettings: ObservableObject {
     @AppStorage("micSampleRate") var micSampleRate: Int = 44100
+    @AppStorage("channelDef") var channelDef: Int = 1
 }

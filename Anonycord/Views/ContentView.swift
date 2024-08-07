@@ -26,7 +26,7 @@ struct ContentView: View {
                 Text("Anonycord")
                     .font(.system(size: UIFont.preferredFont(forTextStyle: .title2).pointSize, weight: .bold)) // goofy ahh <16.0 swiftUI
                     .transition(.scale)
-                Text("by c22dev")
+                Text("v\(Bundle.main.releaseVersionNumber ?? "0.0") - by c22dev")
                     .font(.footnote)
                     .foregroundColor(.secondary)
             }

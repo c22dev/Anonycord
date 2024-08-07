@@ -10,6 +10,7 @@ import SwiftUI
 struct SettingsView: View {
     @State var micSplRateStr = String(AppSettings().micSampleRate)
     @FocusState private var isTextFieldFocused: Bool
+    @State var channelDefStr = String(AppSettings().channelDef)
     var body: some View {
         NavigationView {
             List {
@@ -18,7 +19,7 @@ struct SettingsView: View {
                         Text("Sample Rate")
                         Spacer()
                         TextField("44100", text: $micSplRateStr)
-                            .keyboardType(.decimalPad)
+                            .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
                             .onChange(of: micSplRateStr) { newValue in
                                 micSplRateStr = newValue
@@ -26,10 +27,20 @@ struct SettingsView: View {
                             .focused($isTextFieldFocused)
                         Text("Hz")
                     }
-                    Button("Save") {
+                    Button("Confirm") {
                         isTextFieldFocused = false
                         AppSettings().micSampleRate = Int(micSplRateStr) ?? 44100
                         micSplRateStr = String(AppSettings().micSampleRate)
+                    }
+                    Picker("Channels", selection: $channelDefStr) {
+                        ForEach(channelsMapping.keys.sorted(), id: \.self) { abbreviation in
+                            Text(channelsMapping[abbreviation] ?? abbreviation)
+                                .tag(abbreviation)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: channelDefStr) { newValue in
+                        AppSettings().channelDef = Int(channelDefStr) ?? 1
                     }
                 }
             }
@@ -37,3 +48,8 @@ struct SettingsView: View {
         }
     }
 }
+
+let channelsMapping: [String: String] = [
+            "1": "Mono",
+            "2": "Stereo",
+]

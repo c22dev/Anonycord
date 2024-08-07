@@ -82,7 +82,7 @@ class MediaRecorder: ObservableObject {
         let settings: [String: Any] = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
             AVSampleRateKey: AppSettings().micSampleRate,
-            AVNumberOfChannelsKey: 1,
+            AVNumberOfChannelsKey: AppSettings().channelDef,
             AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
         ]
         

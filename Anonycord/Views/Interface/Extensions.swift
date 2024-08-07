@@ -19,4 +19,7 @@ extension Bundle {
         }
         return nil
     }
+    public var releaseVersionNumber: String? {
+        return infoDictionary?["CFBundleShortVersionString"] as? String
+    }
 }
