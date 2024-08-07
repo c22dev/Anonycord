@@ -6,245 +6,101 @@
 //
 
 import SwiftUI
-import AVFoundation
-import Photos
-import UIKit
 
 struct ContentView: View {
     @State private var showingSettings = false
-    @State private var recordingSession: AVAudioSession!
-    @State private var audioRecorder: AVAudioRecorder!
-    @State private var videoOutput: AVCaptureMovieFileOutput!
-    @State private var captureSession: AVCaptureSession!
-    @State private var photoOutput: AVCapturePhotoOutput!
     @State private var isRecordingVideo = false
     @State private var isRecordingAudio = false
     @State private var videoRecordingURL: URL?
     @State private var showingFilePicker = false
-    private let videoRecordingDelegate = VideoRecordingDelegate()
-    private let photoCaptureDelegate = PhotoCaptureDelegate()
-
+    @State private var boxSize: CGFloat = UIScreen.main.bounds.width - 60
+    @StateObject private var mediaRecorder = MediaRecorder()
+    
     var body: some View {
         VStack {
             Spacer()
             HStack {
-                Button(action: {
-                    isRecordingVideo ? stopVideoRecording() : startVideoRecording()
-                }) {
-                    Image(systemName: isRecordingVideo ? "stop.circle.fill" : "video.circle.fill")
-                        .resizable()
-                        .frame(width: 50, height: 50)
-                        .background(Color.white.opacity(0.2))
-                        .clipShape(Circle())
+                if !isRecordingAudio {
+                    RecordButton(isRecording: $isRecordingVideo, action: toggleVideoRecording, icon: "video.circle.fill")
+                        .transition(.scale)
+                    if !isRecordingVideo {
+                        Spacer()
+                    }
                 }
-                Spacer()
-                Button(action: {
-                    isRecordingAudio ? stopAudioRecording() : startAudioRecording()
-                }) {
-                    Image(systemName: isRecordingAudio ? "stop.circle.fill" : "mic.circle.fill")
-                        .resizable()
-                        .frame(width: 50, height: 50)
-                        .background(Color.white.opacity(0.2))
-                        .clipShape(Circle())
+                
+                if !isRecordingVideo {
+                    RecordButton(isRecording: $isRecordingAudio, action: toggleAudioRecording, icon: "mic.circle.fill")
+                        .transition(.scale)
+                    if !isRecordingAudio {
+                        Spacer()
+                    }
                 }
-                Spacer()
-                Button(action: {
-                    takePhoto()
-                }) {
-                    Image(systemName: "camera.circle.fill")
-                        .resizable()
-                        .frame(width: 50, height: 50)
-                        .background(Color.white.opacity(0.2))
-                        .clipShape(Circle())
-                }
-                Spacer()
-                Button(action: {
-                    showingSettings.toggle()
-                }) {
-                    Image(systemName: "gear.circle.fill")
-                        .resizable()
-                        .frame(width: 50, height: 50)
-                        .background(Color.white.opacity(0.2))
-                        .clipShape(Circle())
-                }
-                .sheet(isPresented: $showingSettings) {
-                    SettingsView()
+                
+                if !isRecordingVideo && !isRecordingAudio {
+                    ControlButton(action: takePhoto, icon: "camera.circle.fill")
+                        .transition(.scale)
+                    Spacer()
+                    ControlButton(action: { showingSettings.toggle() }, icon: "gear.circle.fill")
+                        .sheet(isPresented: $showingSettings) {
+                            SettingsView()
+                        }
+                        .transition(.scale)
                 }
             }
             .padding()
+            .frame(width: boxSize)
             .background(VisualEffectBlur(blurStyle: .systemThinMaterialDark))
             .cornerRadius(30)
             .padding()
-        }
-        .background(Color.black)
-        .onAppear(perform: {
-            requestPermissions()
-            setupCaptureSession()
-        })
-    }
-
-    func requestPermissions() {
-        AVCaptureDevice.requestAccess(for: .video) { granted in
-            if !granted {
-                // Handle denied access
+            .onChange(of: isRecordingVideo) {
+                withAnimation {
+                    boxSize = isRecordingVideo ? 100 : (UIScreen.main.bounds.width - 60)
+                }
             }
-        }
-        AVAudioSession.sharedInstance().requestRecordPermission { granted in
-            if !granted {
-                // Handle denied access
-            }
-        }
-        PHPhotoLibrary.requestAuthorization { status in
-            if status != .authorized {
-                // Handle denied access
-            }
-        }
-    }
-
-    func deleteOldVideos() {
-        let fileManager = FileManager.default
-        let videoURL = getDocumentsDirectory().appendingPathComponent("video.mov")
-        if fileManager.fileExists(atPath: videoURL.path) {
-            do {
-                try fileManager.removeItem(at: videoURL)
-                print("Old video file deleted.")
-            } catch {
-                print("Error deleting old video file: \(error.localizedDescription)")
-            }
-        }
-    }
-
-    func startVideoRecording() {
-        deleteOldVideos()
-        setupCaptureSession()
-
-        DispatchQueue.global(qos: .background).async {
-            DispatchQueue.main.async {
-                self.videoRecordingURL = getDocumentsDirectory().appendingPathComponent("video.mov")
-                self.videoOutput.startRecording(to: self.videoRecordingURL!, recordingDelegate: self.videoRecordingDelegate)
-                self.isRecordingVideo = true
-
-                self.videoRecordingDelegate.onFinish = { url in
-                    if let url = url {
-                        self.videoRecordingDelegate.saveVideoToLibrary(videoURL: url)
-                    }
-                    self.isRecordingVideo = false
+            .onChange(of: isRecordingAudio) {
+                withAnimation {
+                    boxSize = isRecordingAudio ? 100 : (UIScreen.main.bounds.width - 60)
                 }
             }
         }
+        .background(Color.black)
+        .onAppear(perform: setup)
     }
-
-    func stopVideoRecording() {
+    
+    private func setup() {
+        mediaRecorder.requestPermissions()
+        mediaRecorder.setupCaptureSession()
+    }
+    
+    private func toggleVideoRecording() {
         if isRecordingVideo {
-            videoOutput.stopRecording()
-            isRecordingVideo = false
+            mediaRecorder.stopVideoRecording()
+        } else {
+            mediaRecorder.startVideoRecording { url in
+                if let url = url {
+                    mediaRecorder.saveVideoToLibrary(videoURL: url)
+                }
+                isRecordingVideo = false
+            }
         }
+        isRecordingVideo.toggle()
     }
-
-    func startAudioRecording() {
-        let audioFilename = getDocumentsDirectory().appendingPathComponent("recording.m4a")
-        let settings = [
-            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVSampleRateKey: 44100,
-            AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
-        ]
-
-        do {
-            recordingSession = AVAudioSession.sharedInstance()
-            try recordingSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
-            try recordingSession.setActive(true)
-
-            audioRecorder = try AVAudioRecorder(url: audioFilename, settings: settings)
-            audioRecorder.record()
-            isRecordingAudio = true
-        } catch {
-            print("Failed to set up recording session: \(error.localizedDescription)")
-            // Handle error
-        }
-    }
-
-    func stopAudioRecording() {
+    
+    private func toggleAudioRecording() {
         if isRecordingAudio {
-            audioRecorder.stop()
-            audioRecorder = nil
-            isRecordingAudio = false
-            let audioURL = getDocumentsDirectory().appendingPathComponent("recording.m4a")
-            promptSaveAudioToFiles(audioURL: audioURL)
-        }
-    }
-
-    func setupCaptureSession() {
-        captureSession = AVCaptureSession()
-        captureSession.sessionPreset = .high
-
-        // Video input
-        guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else { return }
-        let videoInput: AVCaptureDeviceInput
-        do {
-            videoInput = try AVCaptureDeviceInput(device: videoCaptureDevice)
-        } catch {
-            return
-        }
-
-        if captureSession.canAddInput(videoInput) {
-            captureSession.addInput(videoInput)
+            mediaRecorder.stopAudioRecording()
         } else {
-            return
+            mediaRecorder.startAudioRecording()
         }
-
-        // Audio input
-        guard let audioCaptureDevice = AVCaptureDevice.default(for: .audio) else { return }
-        let audioInput: AVCaptureDeviceInput
-        do {
-            audioInput = try AVCaptureDeviceInput(device: audioCaptureDevice)
-        } catch {
-            return
-        }
-
-        if captureSession.canAddInput(audioInput) {
-            captureSession.addInput(audioInput)
-        } else {
-            return
-        }
-
-        // Output
-        videoOutput = AVCaptureMovieFileOutput()
-        if captureSession.canAddOutput(videoOutput) {
-            captureSession.addOutput(videoOutput)
-        } else {
-            return
-        }
-
-        photoOutput = AVCapturePhotoOutput()
-        if captureSession.canAddOutput(photoOutput) {
-            captureSession.addOutput(photoOutput)
-        }
-
-        captureSession.startRunning()
+        isRecordingAudio.toggle()
     }
-
-    func takePhoto() {
-        guard photoOutput != nil else { return }
-
-        let settings = AVCapturePhotoSettings()
-        photoOutput.capturePhoto(with: settings, delegate: photoCaptureDelegate)
-    }
-
-    func getDocumentsDirectory() -> URL {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        return paths[0]
-    }
-
-    func promptSaveAudioToFiles(audioURL: URL) {
-        let documentPicker = UIDocumentPickerViewController(forExporting: [audioURL])
-        
-        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootController = scene.windows.first?.rootViewController {
-            rootController.present(documentPicker, animated: true, completion: nil)
-        }
+    
+    private func takePhoto() {
+        mediaRecorder.takePhoto()
     }
 }
+
+
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()

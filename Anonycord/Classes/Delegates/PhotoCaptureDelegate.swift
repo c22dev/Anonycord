@@ -7,7 +7,6 @@
 
 import AVFoundation
 import Photos
-import UIKit
 
 class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
@@ -15,18 +14,18 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
             print("Error capturing photo: \(error!.localizedDescription)")
             return
         }
-
+        
         guard let photoData = photo.fileDataRepresentation() else {
             print("No photo data to write")
             return
         }
-
+        
         PHPhotoLibrary.requestAuthorization { status in
             guard status == .authorized else {
                 print("Not authorized to save photo")
                 return
             }
-
+            
             PHPhotoLibrary.shared().performChanges({
                 let creationRequest = PHAssetCreationRequest.forAsset()
                 creationRequest.addResource(with: .photo, data: photoData, options: nil)

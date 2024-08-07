@@ -5,10 +5,8 @@
 //  Created by Constantin Clerc on 7/8/24.
 //
 
-
 import AVFoundation
 import Photos
-import UIKit
 
 class VideoRecordingDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     var onFinish: ((URL?) -> Void)?
@@ -27,10 +25,10 @@ class VideoRecordingDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
         PHPhotoLibrary.shared().performChanges({
             PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: videoURL)
         }, completionHandler: { success, error in
-            if success {
-                print("Video saved to library")
-            } else if let error = error {
+            if let error = error {
                 print("Error saving video: \(error.localizedDescription)")
+            } else {
+                print("Video saved to library")
             }
         })
     }
