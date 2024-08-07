@@ -32,7 +32,6 @@ class MediaRecorder: ObservableObject {
     func setupCaptureSession() {
         captureSession = AVCaptureSession()
         
-        // Configure session preset based on videoQuality
         switch AppSettings().videoQuality {
         case "4K":
             captureSession.sessionPreset = .hd4K3840x2160
@@ -57,7 +56,6 @@ class MediaRecorder: ObservableObject {
             return
         }
         
-        // Remove existing video inputs
         for input in captureSession.inputs {
             if let videoInput = input as? AVCaptureDeviceInput {
                 captureSession.removeInput(videoInput)
