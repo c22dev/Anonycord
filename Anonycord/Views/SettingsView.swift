@@ -15,6 +15,16 @@ struct SettingsView: View {
         NavigationView {
             List {
                 Section(header: Label("Audio Recording", systemImage: "mic"), footer: Text("Settings for audio recording. Doesn't apply to video recording's audio.")) {
+                    Picker("Channels", selection: $channelDefStr) {
+                        ForEach(channelsMapping.keys.sorted(), id: \.self) { abbreviation in
+                            Text(channelsMapping[abbreviation] ?? abbreviation)
+                                .tag(abbreviation)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: channelDefStr) { newValue in
+                        AppSettings().channelDef = Int(channelDefStr) ?? 1
+                    }
                     HStack(spacing: 0) {
                         Text("Sample Rate")
                         Spacer()
@@ -31,16 +41,6 @@ struct SettingsView: View {
                         isTextFieldFocused = false
                         AppSettings().micSampleRate = Int(micSplRateStr) ?? 44100
                         micSplRateStr = String(AppSettings().micSampleRate)
-                    }
-                    Picker("Channels", selection: $channelDefStr) {
-                        ForEach(channelsMapping.keys.sorted(), id: \.self) { abbreviation in
-                            Text(channelsMapping[abbreviation] ?? abbreviation)
-                                .tag(abbreviation)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .onChange(of: channelDefStr) { newValue in
-                        AppSettings().channelDef = Int(channelDefStr) ?? 1
                     }
                 }
             }
