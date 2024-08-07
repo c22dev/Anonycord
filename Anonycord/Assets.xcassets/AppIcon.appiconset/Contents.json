@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "appicon.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -12,6 +13,7 @@
           "value" : "dark"
         }
       ],
+      "filename" : "2024_08_07_04q_Kleki-3.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -23,6 +25,7 @@
           "value" : "tinted"
         }
       ],
+      "filename" : "2024_08_07_04s_Kleki.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
