@@ -206,4 +206,11 @@ class MediaRecorder: ObservableObject {
         captureSession.stopRunning()
         setupCaptureSession()
     }
+    
+    func hasUltraWideCamera() -> Bool {
+        if let ultraWideCamera = AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .back) {
+            return ultraWideCamera.isConnected
+        }
+        return false
+    }
 }

@@ -22,7 +22,7 @@ struct SettingsView: View {
     
     @ObservedObject var mediaRecorder: MediaRecorder
 
-    private let cameraTypes = ["Wide", "UltraWide", "Selfie"]
+    @State private var cameraTypes = ["Wide", "Selfie"]
     private let videoQualities = ["4K", "1080p"]
     
     init(mediaRecorder: MediaRecorder) {
@@ -96,6 +96,11 @@ struct SettingsView: View {
                         appSettings.cameraType = cameraType
                         DispatchQueue.main.async {
                             mediaRecorder.reconfigureCaptureSession()
+                        }
+                    }
+                    .onAppear {
+                        if mediaRecorder.hasUltraWideCamera() {
+                            cameraTypes.append("UltraWide")
                         }
                     }
                 }
