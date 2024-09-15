@@ -127,7 +127,9 @@ struct ContentView: View {
     private func toggleVideoRecording() {
         if isRecordingVideo {
             mediaRecorder.stopVideoRecording()
+            UIApplication.shared.isIdleTimerDisabled = false
         } else {
+            UIApplication.shared.isIdleTimerDisabled = true
             mediaRecorder.startVideoRecording { url in
                 if let url = url {
                     mediaRecorder.saveVideoToLibrary(videoURL: url)
@@ -140,8 +142,10 @@ struct ContentView: View {
     
     private func toggleAudioRecording() {
         if isRecordingAudio {
+            UIApplication.shared.isIdleTimerDisabled = false
             mediaRecorder.stopAudioRecording()
         } else {
+            UIApplication.shared.isIdleTimerDisabled = true
             mediaRecorder.startAudioRecording()
         }
         isRecordingAudio.toggle()
